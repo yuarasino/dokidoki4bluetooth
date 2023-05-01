@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="referrer" content="no-referrer" />
+    <title>dokidoki4bluetooth</title>
+    <meta name="description" content="Bluetoothデバイス向け心拍数表示わんコメテンプレート" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="./src/dokidoki.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body hidden>
+    <div id="dkContainer" class="dkContainer">
+      <div class="dkHRS">
+        <div class="dkHRSCard">
+          <div class="dkHRSImage">
+            <img class="pulse1" src="./data/image.png" alt="" ref="dkHRSImage" />
+          </div>
+          <div class="dkHRSInfo">
+            <div class="dkHRSRate">
+              <i class="material-symbols-outlined">ecg_heart</i>
+              <span>{{ dkHRSRate ? dkHRSRate : "-" }}</span>
+            </div>
+          </div>
+          <div class="dkHRSChart">
+            <canvas ref="dkHRSChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="dkBLE">
+        <button class="dkBLEButton" type="button" @click="dkConnectBLE" :disabled="dkBLEIsActive">
+          <i class="material-symbols-outlined">usb</i>
+          <span>デバイス接続</span>
+        </button>
+      </div>
+    </div>
+    <div id="container" class="container"></div>
+    <script src="../__origin/js/vue.min.js"></script>
+    <script src="../__origin/js/onesdk.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.1/chart.umd.min.js"></script>
+    <script src="./src/dokidoki.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>

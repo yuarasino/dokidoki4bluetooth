@@ -1,0 +1,117 @@
+*, *::before, ::after {
+  box-sizing: border-box;
+}
+
+
+.dkContainer {
+  padding: 0;
+}
+
+
+.dkHRS {
+  padding: 0;
+}
+
+
+.dkHRSCard {
+  position: relative;
+  display: flex;
+  width: 384px;
+  height: 128px;
+  background: #7ECDF6;
+  color: #EE4096;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.dkHRSImage {
+  position: relative;
+  z-index: 10;
+  width: 128px;
+  height: 128px;
+  overflow: hidden;
+}
+
+.dkHRSImage img {
+  width: 128px;
+  height: 128px;
+  transform: translate(-2px, 2px);
+}
+
+.dkHRSImage img.pulse1 {
+  animation: pulse1 .1s;
+}
+
+.dkHRSImage img.pulse2 {
+  animation: pulse2 .1s;
+}
+
+@keyframes pulse1 {
+  0% { transform: translate(-2px, 2px); }
+  50% { transform: translate(0, 0); }
+  100% { transform: translate(-2px, 2px); }
+}
+
+@keyframes pulse2 {
+  0% { transform: translate(-2px, 2px); }
+  50% { transform: translate(0, 0); }
+  100% { transform: translate(-2px, 2px); }
+}
+
+.dkHRSInfo {
+  position: relative;
+  z-index: 10;
+  width: calc(100% - 128px);
+  height: 128px;
+  margin-top: 16px;
+  padding: 16px;
+  line-height: 1;
+}
+
+.dkHRSInfo i {
+  font-size: 48px;
+  vertical-align: -6px;
+}
+
+.dkHRSInfo span {
+  font-size: 48px;
+}
+
+.dkHRSChart {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+}
+
+
+.dkBLE {
+  padding: 32px;
+}
+
+.dkBLEButton {
+  appearance: none;
+  padding: 8px;
+  background-color: #0082FC;
+  border: 2px solid #0052CC;
+  color: #fff;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dkBLEButton[disabled] {
+  background-color: #CCC;
+  border: 2px solid #999;
+  color: #666;
+}
+
+.dkBLEButton i {
+  font-size: 16px;
+  vertical-align: -2px;
+}
+
+.dkBLEButton span {
+  font-size: 16px;
+}
+
