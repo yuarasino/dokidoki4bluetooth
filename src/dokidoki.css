@@ -1,0 +1,121 @@
+*, *::before, *:after {
+  box-sizing: inherit;
+}
+
+
+/** コンテナ */
+
+.dkContainer {
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+
+/** ディスプレイ */
+
+.dkDisplay {
+  padding: 0;
+}
+
+.dkDisplayCard {
+  position: relative;
+  display: flex;
+  width: 384px;
+  height: 128px;
+  background: #7ECDF6;
+  color: #EE4096;
+}
+
+.dkDisplayImage {
+  position: relative;
+  z-index: 10;
+  width: 128px;
+  height: 128px;
+  overflow: hidden;
+}
+
+.dkDisplayImage img {
+  width: 128px;
+  height: 128px;
+  transform: translate(-2px, 2px);
+}
+
+.dkDisplayImage img.isPulsed1 {
+  animation: isPulsed1 .1s;
+}
+
+.dkDisplayImage img.isPulsed2 {
+  animation: isPulsed2 .1s;
+}
+
+@keyframes isPulsed1 {
+  0% { transform: translate(-2px, 2px); }
+  50% { transform: translate(0, 0); }
+  100% { transform: translate(-2px, 2px); }
+}
+
+@keyframes isPulsed2 {
+  0% { transform: translate(-2px, 2px); }
+  50% { transform: translate(0, 0); }
+  100% { transform: translate(-2px, 2px); }
+}
+
+.dkDisplaySensor {
+  position: relative;
+  z-index: 10;
+  width: calc(100% - 128px);
+  height: 128px;
+  margin-top: 16px;
+  padding: 16px;
+  line-height: 1;
+}
+
+.dkDisplaySensor i {
+  font-size: 48px;
+  vertical-align: -6px;
+}
+
+.dkDisplaySensor span {
+  font-size: 48px;
+}
+
+.dkDisplayChart {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+}
+
+
+/** シリアル */
+
+.dkSerial {
+  padding: 32px;
+}
+
+.dkSerialButton {
+  appearance: none;
+  padding: 8px;
+  background-color: #0082FC;
+  border: 2px solid #0052CC;
+  color: #fff;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.dkSerialButton[disabled] {
+  background-color: #CCC;
+  border: 2px solid #999;
+  color: #666;
+}
+
+.dkSerialButton i {
+  font-size: 16px;
+  vertical-align: -2px;
+}
+
+.dkSerialButton span {
+  font-size: 16px;
+}
