@@ -62,9 +62,8 @@ const gApp = Vue.createApp({
           }
         }
       } catch (error) {
-        console.error(`[ERROR] Serial error catched. ${error}`)
-      }
-      finally {
+        console.error(`[ERROR] Serial error caught. ${error}`)
+      } finally {
         reader.releaseLock()
       }
       await readableStreamClosed.catch(() => {})
