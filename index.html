@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -15,27 +15,26 @@
   <body hidden>
     <div id="dkContainer" class="dkContainer">
       <div class="dkDisplay">
-        <div class="dkDisplayCard">
-          <div class="dkDisplayImage">
-            <img class="isPulsed1" src="./data/image.png" alt="" ref="gDisplayImage" />
-          </div>
-          <div class="dkDisplaySensor">
-            <i class="material-symbols-outlined">ecg_heart</i>
-            <span>{{ gDisplaySensorText }}</span>
-          </div>
-          <div class="dkDisplayChart">
-            <canvas ref="gDisplayChart"></canvas>
-          </div>
+        <div class="dkDisplayImage">
+          <img src="./data/image.png" alt="" ref="dkDisplayImage" />
+        </div>
+        <div class="dkDisplaySensor">
+          <i class="material-symbols-outlined">ecg_heart</i>
+          <span>{{ dkDisplayRateText }}</span>
+        </div>
+        <div class="dkDisplayChart">
+          <canvas ref="dkDisplayChart"></canvas>
         </div>
       </div>
       <div class="dkSerial">
-        <button class="dkSerialButton" :disabled="gSerialIsConnected" @click="connectSerial">
+        <button class="dkSerialButton" :disabled="dkSerialIsConnecting" @click="connectSerial">
           <i class="material-symbols-outlined">usb</i>
           <span>デバイス接続</span>
         </button>
       </div>
     </div>
-    <div id="container" class="container"></div>
+    <div id="container" class="container">
+    </div>
     <script src="../__origin/js/vue.min.js"></script>
     <script src="../__origin/js/onesdk.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.2.1/chart.umd.min.js"></script>

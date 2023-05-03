@@ -1,129 +1,151 @@
-// 個人設定
+// 定数
+
 const D_DISPLAY_CHART_MIN = 50
 const D_DISPLAY_CHART_MAX = 100
 
-
-// テンプレート設定
 const D_SERIAL_VENDOR_ID = 0x303A
 
 
-/** 改行ごとにメッセージを取り出すための変換器 */
+// グローバル変数
+
+let gSerialPort = undefined
+let gSerialReadableClosed = undefined
+let gSerialReader = undefined
+let gDisplayChart = undefined
+
+
+// リアクティブ
+
+const dkSerialIsConnecting = Vue.ref(false)
+const dkDisplayImage = Vue.ref(undefined)
+const dkDisplayChart = Vue.ref(undefined)
+const dkSensorRate = Vue.ref(0)
+const dkDisplayRateText = Vue.computed(() => dkSensorRate.value ? String(dkSensorRate.value) : "-")
+
+
+/** 改行ごとにメッセージを取り出すための変換 */
 class CSerialTransformer {
   constructor() {
-    this.mChunk = "";
+    this.mMessage = ""
   }
   transform(chunk, controller) {
-    this.mChunk += chunk
-    const lines = this.mChunk.split("\n")
-    this.mChunk = lines.pop()
+    this.mMessage += chunk
+    const lines = this.mMessage.split("\n")
+    this.mMessage = lines.pop()
     lines.forEach((line) => controller.enqueue(line))
   }
   flush(controller) {
-    controller.enqueue(this.mChunk)
+    controller.enqueue(this.mMessage)
   }
 }
 
 
-/** Vueアプリケーション */
-const gApp = Vue.createApp({
-  setup() {
-    let mDisplayChart = undefined
-    let mSerialPort = undefined
-    const gDisplayImage = Vue.ref()
-    const gDisplayChart = Vue.ref()
-    const gSensorRate = Vue.ref(0)
-    const gSerialIsConnected = Vue.ref(false)
+/** ディスプレイの更新 */
+const updateDisplay = () => {
+  dkDisplayImage.value.classList.add("isPulsing")
+  gDisplayChart.data.datasets[0].data.push(dkSensorRate.value)
+  gDisplayChart.data.datasets[0].data.shift()
+  gDisplayChart.update()
+  setTimeout(() => dkDisplayImage.value.classList.remove("isPulsing"), 100)
+  // console.log("[DEBUG] Display chart reflected.")
+}
 
-    const gDisplaySensorText = Vue.computed(() => gSensorRate.value ? String(gSensorRate.value) : "-")
 
-    const updateDisplay = () => {
-      gDisplayImage.value.classList.toggle("isPulsed1")
-      gDisplayImage.value.classList.toggle("isPulsed2")
-      mDisplayChart.data.datasets[0].data.push(gSensorRate.value)
-      mDisplayChart.data.datasets[0].data.shift()
-      mDisplayChart.update()
-      // console.log(`[DEBUG] Display updated.`)
-    }
-
-    const loopSerial = async () => {
-      const decoderStream = new TextDecoderStream()
-      const transformerStream = new TransformStream(new CSerialTransformer())
-      const readableStreamClosed = mSerialPort.readable.pipeTo(decoderStream.writable)
-      const reader = decoderStream.readable.pipeThrough(transformerStream).getReader()
-      try {
-        while (true) {
-          const { value: message, done } = await reader.read()
-          if (done) { break }
-          if (message.startsWith("<- ")) {
-            const rate = Number(message.substring(3))
-            gSensorRate.value = rate
-            console.log(`[INFO] Serial message received. ${message}`)
-            updateDisplay()
-          }
-        }
-      } catch (error) {
-        console.error(`[ERROR] Serial error caught. ${error}`)
-      } finally {
-        reader.releaseLock()
+/** シリアルの更新 */
+const updateSerial = async () => {
+  try {
+    while (true) {
+      const { value: message, done } = await gSerialReader.read()
+      if (done) { break }
+      if (message.startsWith("<- ")) {
+        console.log(message)
+        const rate = Number(message.substring(3))
+        dkSensorRate.value = rate
+        updateDisplay()
       }
-      await readableStreamClosed.catch(() => {})
-      await mSerialPort.close()
-      mSerialPort = undefined
-      gSensorRate.value = 0
-      gSerialIsConnected.value = false
-      console.error(`[INFO] Serial disconnected.`)
     }
+  } catch (error) {
+    console.log(error)
+  }
+  gSerialReader.releaseLock()
+  await disconnectSerial()
+}
 
-    const connectSerial = async () => {
-      const port = await navigator.serial.requestPort({ filters: [{ usbVendorId: D_SERIAL_VENDOR_ID }]})
-      mSerialPort = port
-      await port.open({ baudRate: 115200 })
-      gSerialIsConnected.value = true
-      console.log(`[INFO] Serial connected.`)
-      await loopSerial()
-    }
 
-    const beginDisplay = () => {
-      const data = Array(10).fill(0)
-      mDisplayChart = new Chart(gDisplayChart.value, {
-        type: "line",
-        data: {
-          labels: [...data.keys()],
-          datasets: [{
-            data: data,
-            fill: false,
-            borderColor: "#539EC7",
-            tension: 0,
-            pointRadius: 0,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          animation: false,
-          scales: {
-            x: { display: false },
-            y: { display: false, min: D_DISPLAY_CHART_MIN, max: D_DISPLAY_CHART_MAX },
-          },
-          plugins: {
-            legend: { display: false },
-          },
-        }
-      })
-      // console.log(`[DEBUG] Display begun.`)
-    }
+/** シリアルの接続 */
+const connectSerial = async () => {
+  const port = await navigator.serial.requestPort({ filters: [{ usbVendorId: D_SERIAL_VENDOR_ID }]})
+  await port.open({ baudRate: 115200 })
+  const decoder = new TextDecoderStream()
+  const transformer = new TransformStream(new CSerialTransformer())
+  const readableClosed = port.readable.pipeTo(decoder.writable)
+  const reader = decoder.readable.pipeThrough(transformer).getReader()
+  gSerialPort = port
+  gSerialReadableClosed = readableClosed
+  gSerialReader = reader
+  dkSerialIsConnecting.value = true
+  console.log("[INFO] Serial connected.")
+  await updateSerial()
+}
 
+
+/** シリアルの切断 */
+const disconnectSerial = async () => {
+  await gSerialReadableClosed.catch(() => {})
+  await gSerialPort.close()
+  gSerialPort = undefined
+  gSerialReadableClosed = undefined
+  gSerialReader = undefined
+  dkSensorRate.value = 0
+  dkSerialIsConnecting.value = false
+  console.log("[INFO] Serial disconnected.")
+}
+
+
+/** ディスプレイの設定 */
+function beginDisplay() {
+  gDisplayChart = new Chart(dkDisplayChart.value, {
+    type: "line",
+    data: {
+      labels: Array(5).fill(""),
+      datasets: [{
+        data: Array(5).fill(0),
+        borderColor: "#539EC7",
+        tension: 0,
+        pointRadius: 0,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      scales: {
+        x: { display: false },
+        y: { display: false, min: D_DISPLAY_CHART_MIN, max: D_DISPLAY_CHART_MAX },
+      },
+      plugins: {
+        legend: { display: false },
+      },
+    },
+  })
+  console.log("[INFO] Display begun.")
+}
+
+
+/** Vueアプリケーション */
+Vue.createApp({
+  setup() {
     Vue.onMounted(() => {
       beginDisplay()
     })
 
     return {
-      gDisplayImage,
-      gDisplaySensorText,
-      gDisplayChart,
-      gSerialIsConnected,
+      dkSerialIsConnecting,
+      dkDisplayImage,
+      dkDisplayChart,
+      dkDisplayRateText,
       connectSerial,
     }
   }
 })
-gApp.mount("#dkContainer")
+.mount("#dkContainer")

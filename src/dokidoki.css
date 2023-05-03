@@ -7,17 +7,20 @@
 
 .dkContainer {
   box-sizing: border-box;
-  font-family: 'Noto Sans JP', sans-serif;
+  font-family: "Noto Sans JP", sans-serif;
 }
 
 
 /** ディスプレイ */
 
-.dkDisplay {
-  padding: 0;
+@keyframes isPulsing {
+  0% { transform: translate(-2px, 2px); }
+  50% { transform: translate(0, 0); }
+  100% { transform: translate(-2px, 2px); }
 }
 
-.dkDisplayCard {
+.dkDisplay {
+  padding: 0;
   position: relative;
   display: flex;
   width: 384px;
@@ -40,24 +43,8 @@
   transform: translate(-2px, 2px);
 }
 
-.dkDisplayImage img.isPulsed1 {
-  animation: isPulsed1 .1s;
-}
-
-.dkDisplayImage img.isPulsed2 {
-  animation: isPulsed2 .1s;
-}
-
-@keyframes isPulsed1 {
-  0% { transform: translate(-2px, 2px); }
-  50% { transform: translate(0, 0); }
-  100% { transform: translate(-2px, 2px); }
-}
-
-@keyframes isPulsed2 {
-  0% { transform: translate(-2px, 2px); }
-  50% { transform: translate(0, 0); }
-  100% { transform: translate(-2px, 2px); }
+.dkDisplayImage img.isPulsing {
+  animation: isPulsing 100ms;
 }
 
 .dkDisplaySensor {
